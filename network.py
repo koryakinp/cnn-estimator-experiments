@@ -5,15 +5,17 @@ import numpy as np
 def get_model(x, conv, dense, apply_dropout=True):
 
     net = tf.reshape(x, [-1, 28, 28, 1])
-    net = tf.layers.conv2d(**build_conv_param(net, conv[0], 'conv1'))
-    net = tf.layers.max_pooling2d(inputs=net, pool_size=2, strides=2)
-    net = tf.layers.conv2d(**build_conv_param(net, conv[1], 'conv2'))
-    net = tf.layers.max_pooling2d(inputs=net, pool_size=2, strides=2)
+
+    for i, val in enumerate(conv):
+        net = tf.layers.conv2d(**build_conv_param(net, val, 'conv' + str(i)))
+        net = tf.layers.max_pooling2d(inputs=net, pool_size=2, strides=2)
+
     net = tf.contrib.layers.flatten(net)
-    net = tf.layers.dense(**build_dense_param(net, dense[0], 'dense1'))
-    net = tf.layers.dropout(net, rate=0.4, training=apply_dropout)
-    net = tf.layers.dense(**build_dense_param(net, dense[1], 'dense2'))
-    net = tf.layers.dropout(net, rate=0.4, training=apply_dropout)
+
+    for i, val in enumerate(dense[:-1]):
+        net = tf.layers.dense(**build_dense_param(net, val, 'dense' + str(i)))
+        net = tf.layers.dropout(net, rate=0.4, training=apply_dropout)
+
     return tf.layers.dense(**build_dense_param(net, dense[2], 'dense3'))
 
 
