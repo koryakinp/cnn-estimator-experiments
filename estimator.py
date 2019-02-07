@@ -70,9 +70,11 @@ class Estimator:
         best_accuracy = 0
         clear_folder(self.best_model)
         clear_folder(self.last_model)
-        self.data.shuffle_train()
 
-        while True:
+        epochs = 30
+
+        for epoch in range(1, epochs):
+            print("Epoch: {}/{}".format(epoch, epochs))
             self.process_train()
             cur_accuracy = self.process_test()
             if(cur_accuracy > best_accuracy):
@@ -81,5 +83,3 @@ class Estimator:
                 copy_files(self.last_model, self.best_model)
                 print(best_accuracy)
                 self.data.shuffle_train()
-            else:
-                break
