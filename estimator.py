@@ -12,19 +12,12 @@ class Estimator:
         self.best_model = model_dir + "/best/"
         self.last_model = model_dir + "/last/"
         self.checkpoint = "checkpoint.chk"
-        self.params = {
-            "conv": [
-                {"filters": 128, "filter_size": 3},
-                {"filters": 256, "filter_size": 3}
-            ],
-            "dense": [128, 256, 10]
-        }
 
     def process_train(self):
         tf.reset_default_graph()
         X = tf.placeholder(shape=[None, 784], dtype=tf.float32, name="X")
         Y = tf.placeholder(shape=[None, 10], dtype=tf.float32, name="Y")
-        model = get_model(X, **self.params, apply_dropout=True)
+        model = get_model(X, apply_dropout=True)
         loss = tf.nn.softmax_cross_entropy_with_logits_v2(
             labels=Y, logits=model)
         opt = tf.train.AdamOptimizer(0.001).minimize(loss)
@@ -55,7 +48,7 @@ class Estimator:
         tf.reset_default_graph()
         X = tf.placeholder(shape=[None, 784], dtype=tf.float32, name="X")
         Y = tf.placeholder(shape=[None, 10], dtype=tf.float32, name="Y")
-        model = get_model(X, **self.params, apply_dropout=False)
+        model = get_model(X, apply_dropout=False)
         res = tf.equal(tf.argmax(model, 1), tf.argmax(Y, 1))
         res = tf.cast(res, tf.float32)
 
@@ -77,6 +70,7 @@ class Estimator:
         best_accuracy = 0
         clear_folder(self.best_model)
         clear_folder(self.last_model)
+        self.data.shuffle_train()
 
         while True:
             self.process_train()
@@ -86,5 +80,6 @@ class Estimator:
                 clear_folder(self.best_model)
                 copy_files(self.last_model, self.best_model)
                 print(best_accuracy)
+                self.data.shuffle_train()
             else:
                 break

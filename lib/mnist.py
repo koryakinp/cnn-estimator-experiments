@@ -223,4 +223,9 @@ class MNIST:
     def get_number_of_test_batches(self, batch_size):
         return int(self.num_test/batch_size)
 
+    def shuffle_train(self):
+        assert len(self.x_train) == len(self.y_train)
+        p = np.random.permutation(len(self.x_train))
+        return self.x_train[p], self.y_train[p]
+
 ########################################################################
