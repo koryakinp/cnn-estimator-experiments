@@ -63,7 +63,6 @@ class Estimator:
 
                 print("\rBatch: {}/{}".format(batch + 1, batches), end="")
 
-        print("\r")
         return np.array(results).mean()
 
     def build_model(self):
@@ -71,9 +70,10 @@ class Estimator:
         clear_folder(self.best_model)
         clear_folder(self.last_model)
 
-        epochs = 30
+        epochs = 10
 
         for epoch in range(1, epochs):
+            self.data.shuffle()
             print("Epoch: {}/{}".format(epoch, epochs))
             self.process_train()
             cur_accuracy = self.process_test()
@@ -82,4 +82,5 @@ class Estimator:
                 clear_folder(self.best_model)
                 copy_files(self.last_model, self.best_model)
                 print(best_accuracy)
-                self.data.shuffle_train()
+            else:
+                break

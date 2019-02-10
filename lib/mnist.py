@@ -26,7 +26,6 @@
 import numpy as np
 import gzip
 import os
-from .dataset import one_hot_encoded
 from .download import download
 
 ########################################################################
@@ -41,6 +40,32 @@ filename_x_test = "t10k-images-idx3-ubyte.gz"
 filename_y_test = "t10k-labels-idx1-ubyte.gz"
 
 ########################################################################
+
+
+def one_hot_encoded(class_numbers, num_classes=None):
+    """
+    Generate the One-Hot encoded class-labels from an array of integers.
+
+    For example, if class_number=2 and num_classes=4 then
+    the one-hot encoded label is the float array: [0. 0. 1. 0.]
+
+    :param class_numbers:
+        Array of integers with class-numbers.
+        Assume the integers are from zero to num_classes-1 inclusive.
+
+    :param num_classes:
+        Number of classes. If None then use max(class_numbers)+1.
+
+    :return:
+        2-dim array of shape: [len(class_numbers), num_classes]
+    """
+
+    # Find the number of classes if None is provided.
+    # Assumes the lowest class-number is zero.
+    if num_classes is None:
+        num_classes = np.max(class_numbers) + 1
+
+    return np.eye(num_classes, dtype=float)[class_numbers]
 
 
 class MNIST:
@@ -200,6 +225,8 @@ class MNIST:
         x_batch = self.x_train[idx]
         y_batch = self.y_train[idx]
 
+        self.train_idx += 1
+
         return x_batch, y_batch
 
     def get_number_of_train_batches(self, batch_size):
@@ -218,13 +245,16 @@ class MNIST:
         x_batch = self.x_test[idx]
         y_batch = self.y_test[idx]
 
+        self.test_idx += 1
+
         return x_batch, y_batch
 
     def get_number_of_test_batches(self, batch_size):
         return int(self.num_test/batch_size)
 
-    def shuffle_train(self):
-        assert len(self.x_train) == len(self.y_train)
+    def shuffle(self):
+        self.test_idx = 0
+        self.train_idx = 0
         p = np.random.permutation(len(self.x_train))
         return self.x_train[p], self.y_train[p]
 
